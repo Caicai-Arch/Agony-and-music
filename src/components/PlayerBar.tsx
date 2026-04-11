@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 const PlayerBar: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(true)
-  const [currentTime, setCurrentTime] = useState(120)
-  const [duration, setDuration] = useState(300)
-  const [volume, setVolume] = useState(70)
+  const [currentTime, _setCurrentTime] = useState(120)
+  const [duration, _setDuration] = useState(300)
+  const [volume, _setVolume] = useState(70)
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying)
