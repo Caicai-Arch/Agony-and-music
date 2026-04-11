@@ -26,8 +26,8 @@ const PlayerBar: React.FC = () => {
           className="w-12 h-12 object-cover mr-4"
         />
         <div>
-          <h4 className="font-medium">当前播放歌曲</h4>
-          <p className="text-gray-400 text-sm">歌手名称</p>
+          <h4 className="font-medium">Shape of You</h4>
+          <p className="text-gray-400 text-sm">Ed Sheeran</p>
         </div>
       </div>
 
@@ -76,11 +76,8 @@ const PlayerBar: React.FC = () => {
             style={{ width: `${volume}%` }}
           ></div>
         </div>
-        <button className="text-gray-400 hover:text-white mr-2">
-          <span className="text-xl">📱</span>
-        </button>
         <button className="text-gray-400 hover:text-white">
-          <span className="text-xl">💬</span>
+          <span className="text-xl">📱</span>
         </button>
       </div>
     </div>
