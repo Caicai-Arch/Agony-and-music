@@ -1,14 +1,24 @@
 import { useState } from 'react'
 
-const PlayerBar: React.FC = () => {
-  const [isPlaying, setIsPlaying] = useState(true)
+interface Song {
+  id: number
+  title: string
+  artist: string
+  cover: string
+  duration: string
+  url: string
+}
+
+interface PlayerBarProps {
+  currentSong: Song | null
+  isPlaying: boolean
+  onTogglePlay: () => void
+}
+
+const PlayerBar: React.FC<PlayerBarProps> = ({ currentSong, isPlaying, onTogglePlay }) => {
   const [currentTime, _setCurrentTime] = useState(120)
   const [duration, _setDuration] = useState(300)
   const [volume, _setVolume] = useState(70)
-
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying)
-  }
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -21,13 +31,13 @@ const PlayerBar: React.FC = () => {
       {/* 歌曲信息 */}
       <div className="flex items-center w-1/4">
         <img 
-          src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20dark%20theme%20red%20accent&image_size=square" 
-          alt="当前播放" 
+          src={currentSong?.cover || "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20dark%20theme%20red%20accent&image_size=square"} 
+          alt={currentSong?.title || "当前播放"} 
           className="w-12 h-12 object-cover mr-4"
         />
         <div>
-          <h4 className="font-medium">Shape of You</h4>
-          <p className="text-gray-400 text-sm">Ed Sheeran</p>
+          <h4 className="font-medium">{currentSong?.title || "未选择歌曲"}</h4>
+          <p className="text-gray-400 text-sm">{currentSong?.artist || ""}</p>
         </div>
       </div>
 
@@ -42,7 +52,7 @@ const PlayerBar: React.FC = () => {
           </button>
           <button 
             className="bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-red-600"
-            onClick={togglePlay}
+            onClick={onTogglePlay}
           >
             <span className="text-xl">{isPlaying ? '⏸️' : '▶️'}</span>
           </button>

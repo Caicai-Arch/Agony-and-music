@@ -7,72 +7,22 @@ interface Playlist {
   description: string
 }
 
-interface RecentSong {
+interface Song {
   id: number
   title: string
   artist: string
   cover: string
   duration: string
+  url: string
 }
 
-const MainContent: React.FC = () => {
-  const playlists: Playlist[] = [
-    {
-      id: 1,
-      title: '每日推荐',
-      cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20playlist%20cover%20daily%20recommendation%20dark%20theme%20red%20accent&image_size=square_hd',
-      description: '为你推荐的每日歌曲'
-    },
-    {
-      id: 2,
-      title: '流行热歌',
-      cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20playlist%20cover%20popular%20hits%20dark%20theme%20red%20accent&image_size=square_hd',
-      description: '当下最流行的歌曲'
-    },
-    {
-      id: 3,
-      title: '摇滚经典',
-      cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20playlist%20cover%20rock%20classics%20dark%20theme%20red%20accent&image_size=square_hd',
-      description: '经典摇滚歌曲合集'
-    },
-    {
-      id: 4,
-      title: '电子舞曲',
-      cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20playlist%20cover%20electronic%20dance%20dark%20theme%20red%20accent&image_size=square_hd',
-      description: '适合跳舞的电子音乐'
-    }
-  ]
+interface MainContentProps {
+  songs: Song[]
+  playlists: Playlist[]
+  onPlaySong: (song: Song) => void
+}
 
-  const recentSongs: RecentSong[] = [
-    {
-      id: 1,
-      title: 'Shape of You',
-      artist: 'Ed Sheeran',
-      cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20shape%20of%20you%20dark%20theme&image_size=square',
-      duration: '3:53'
-    },
-    {
-      id: 2,
-      title: 'Blinding Lights',
-      artist: 'The Weeknd',
-      cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20blinding%20lights%20dark%20theme&image_size=square',
-      duration: '3:20'
-    },
-    {
-      id: 3,
-      title: 'Dance Monkey',
-      artist: 'Tones and I',
-      cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20dance%20monkey%20dark%20theme&image_size=square',
-      duration: '3:29'
-    },
-    {
-      id: 4,
-      title: 'Someone Like You',
-      artist: 'Adele',
-      cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20someone%20like%20you%20dark%20theme&image_size=square',
-      duration: '4:45'
-    }
-  ]
+const MainContent: React.FC<MainContentProps> = ({ songs, playlists, onPlaySong }) => {
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
@@ -124,8 +74,12 @@ const MainContent: React.FC = () => {
         </div>
         <div className="bg-gray-900 rounded-lg overflow-hidden">
           <div className="divide-y divide-gray-800">
-            {recentSongs.map((song) => (
-              <div key={song.id} className="flex items-center p-4 hover:bg-gray-800 transition-colors">
+            {songs.map((song) => (
+              <div 
+                key={song.id} 
+                className="flex items-center p-4 hover:bg-gray-800 transition-colors cursor-pointer"
+                onClick={() => onPlaySong(song)}
+              >
                 <img 
                   src={song.cover} 
                   alt={song.title} 
