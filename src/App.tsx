@@ -151,8 +151,8 @@ function App() {
       // 在实际应用中，您可能需要手动维护这个列表，或者使用其他方式获取
       const files = [
         {
-          name: 'Jar Of Love.mp3',
-          url: `${r2Endpoint}/Jar%20Of%20Love.mp3`,
+          name: '曲婉婷 - Jar Of Love.mp3',
+          url: `${r2Endpoint}/曲婉婷 - Jar Of Love.mp3`,
           size: 5000000, // 假设文件大小
           lastModified: new Date()
         }
@@ -201,16 +201,27 @@ function App() {
         // 从文件名中提取歌曲信息
         const fileName = file.name
         
-        // 简单处理：将文件名作为标题，未知作为歌手
-        const title = fileName.replace(/\.mp3$/, '')
+        // 尝试从文件名中提取歌手和歌名（格式：歌手 - 歌名.mp3）
+        let title = fileName.replace(/\.mp3$/, '')
+        let artist = '未知'
+        
+        // 检查文件名是否包含" - "分隔符
+        const separatorIndex = title.indexOf(' - ')
+        if (separatorIndex > -1) {
+          artist = title.substring(0, separatorIndex)
+          title = title.substring(separatorIndex + 3)
+        }
+        
+        // 确保URL正确编码
+        const encodedUrl = encodeURI(file.url)
         
         return {
           id: songs.length + index + 1,
           title,
-          artist: '未知',
+          artist,
           cover: `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20${encodeURIComponent(title)}%20dark%20theme&image_size=square`,
           duration: '3:00',
-          url: file.url
+          url: encodedUrl
         }
       })
 
