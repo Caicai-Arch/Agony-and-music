@@ -5,6 +5,7 @@ import PlayerBar from './components/PlayerBar'
 import ParticleEffect from './components/ParticleEffect'
 import Navbar from './components/Navbar'
 import { supabase } from './lib/supabase'
+import { searchR2Files } from './lib/r2'
 
 interface Song {
   id: number
@@ -139,7 +140,7 @@ function App() {
   }
 
   // 搜索函数
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query)
     if (query.trim() === '') {
       setSearchResults([])
@@ -148,16 +149,56 @@ function App() {
     }
 
     setIsSearching(true)
-    // 过滤歌曲列表，匹配标题、歌手或专辑
-    const results = songs.filter(song => {
-      const searchLower = query.toLowerCase()
-      return (
-        song.title.toLowerCase().includes(searchLower) ||
-        song.artist.toLowerCase().includes(searchLower)
-      )
-    })
-    setSearchResults(results)
-    setIsSearching(false)
+    
+    try {
+      // 1. 搜索本地歌曲列表
+      const localResults = songs.filter(song => {
+        const searchLower = query.toLowerCase()
+        return (
+          song.title.toLowerCase().includes(searchLower) ||
+          song.artist.toLowerCase().includes(searchLower)
+        )
+      })
+
+      // 2. 搜索R2存储桶中的文件
+      const r2Files = await searchR2Files(query)
+      
+      // 3. 将R2文件转换为Song类型
+      const r2Results = r2Files.map((file: any, index: number) => {
+        // 从文件名中提取歌曲信息
+        const fileName = file.Key
+        const fileUrl = `https://pub-12fc31f50c7e427a8bf85d595cb1a92e.r2.dev/${encodeURIComponent(fileName)}`
+        
+        // 简单处理：将文件名作为标题，未知作为歌手
+        const title = fileName.replace(/\.mp3$/, '')
+        
+        return {
+          id: songs.length + index + 1,
+          title,
+          artist: '未知',
+          cover: `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20${encodeURIComponent(title)}%20dark%20theme&image_size=square`,
+          duration: '3:00',
+          url: fileUrl
+        }
+      })
+
+      // 4. 合并搜索结果
+      const allResults = [...localResults, ...r2Results]
+      setSearchResults(allResults)
+    } catch (error) {
+      console.error('Error during search:', error)
+      // 如果搜索失败，至少显示本地歌曲的搜索结果
+      const localResults = songs.filter(song => {
+        const searchLower = query.toLowerCase()
+        return (
+          song.title.toLowerCase().includes(searchLower) ||
+          song.artist.toLowerCase().includes(searchLower)
+        )
+      })
+      setSearchResults(localResults)
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   return (
