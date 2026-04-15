@@ -246,6 +246,7 @@ function App() {
         currentSong={currentSong} 
         isPlaying={isPlaying} 
         onTogglePlay={togglePlay} 
+        audioRef={audioRef} 
       />
       <ParticleEffect />
       <audio ref={audioRef} className="hidden" />
