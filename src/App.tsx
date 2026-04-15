@@ -5,7 +5,6 @@ import PlayerBar from './components/PlayerBar'
 import ParticleEffect from './components/ParticleEffect'
 import Navbar from './components/Navbar'
 import { supabase } from './lib/supabase'
-import { searchR2Files } from './lib/r2'
 
 interface Song {
   id: number
@@ -139,6 +138,20 @@ function App() {
     }
   }
 
+  // 从API获取R2文件列表
+  const getR2FilesFromAPI = async () => {
+    try {
+      const response = await fetch('/api/list-files')
+      if (!response.ok) {
+        throw new Error('Failed to fetch R2 files')
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching R2 files from API:', error)
+      return []
+    }
+  }
+
   // 搜索函数
   const handleSearch = async (query: string) => {
     setSearchQuery(query)
@@ -160,14 +173,19 @@ function App() {
         )
       })
 
-      // 2. 搜索R2存储桶中的文件
-      const r2Files = await searchR2Files(query)
+      // 2. 从API获取R2存储桶中的文件列表
+      const r2Files = await getR2FilesFromAPI()
       
-      // 3. 将R2文件转换为Song类型
-      const r2Results = r2Files.map((file: any, index: number) => {
+      // 3. 过滤R2文件，匹配搜索查询
+      const searchLower = query.toLowerCase()
+      const filteredR2Files = r2Files.filter((file: any) => 
+        file.name.toLowerCase().includes(searchLower)
+      )
+      
+      // 4. 将R2文件转换为Song类型
+      const r2Results = filteredR2Files.map((file: any, index: number) => {
         // 从文件名中提取歌曲信息
-        const fileName = file.Key
-        const fileUrl = `https://pub-12fc31f50c7e427a8bf85d595cb1a92e.r2.dev/${encodeURIComponent(fileName)}`
+        const fileName = file.name
         
         // 简单处理：将文件名作为标题，未知作为歌手
         const title = fileName.replace(/\.mp3$/, '')
@@ -178,11 +196,11 @@ function App() {
           artist: '未知',
           cover: `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20${encodeURIComponent(title)}%20dark%20theme&image_size=square`,
           duration: '3:00',
-          url: fileUrl
+          url: file.url
         }
       })
 
-      // 4. 合并搜索结果
+      // 5. 合并搜索结果
       const allResults = [...localResults, ...r2Results]
       setSearchResults(allResults)
     } catch (error) {
