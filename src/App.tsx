@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
 import PlayerBar from './components/PlayerBar'
 import ParticleEffect from './components/ParticleEffect'
+import Navbar from './components/Navbar'
 import { supabase } from './lib/supabase'
 
 interface Song {
@@ -25,15 +26,22 @@ function App() {
   const [currentSong, setCurrentSong] = useState<Song | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [songs, setSongs] = useState<Song[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Song[]>([])
+  const [isSearching, setIsSearching] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
   // 从Supabase获取歌曲数据
   useEffect(() => {
     const fetchSongs = async () => {
       try {
+        console.log('开始获取歌曲数据...')
         const { data, error } = await supabase
           .from('songs')
           .select('*')
+        
+        console.log('获取到的数据:', data)
+        console.log('错误信息:', error)
         
         if (error) {
           throw error
@@ -49,11 +57,12 @@ function App() {
           url: song.url
         }))
         
+        console.log('处理后的数据:', songsWithDefaults)
         setSongs(songsWithDefaults)
       } catch (error: any) {
         console.error('Error fetching songs:', error)
         // 使用默认歌曲数据作为 fallback
-        setSongs([
+        const fallbackSongs = [
           {
             id: 1,
             title: 'Shape of You',
@@ -61,8 +70,18 @@ function App() {
             cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20shape%20of%20you%20dark%20theme&image_size=square',
             duration: '3:53',
             url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+          },
+          {
+            id: 2,
+            title: 'Jar Of Love',
+            artist: '曲婉婷',
+            cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20Jar%20Of%20Love%20dark%20theme&image_size=square',
+            duration: '3:00',
+            url: 'https://pub-12fc31f50c7e427a8bf85d595cb1a92e.r2.dev/Jar Of Love.mp3'
           }
-        ])
+        ]
+        console.log('使用 fallback 数据:', fallbackSongs)
+        setSongs(fallbackSongs)
       }
     }
 
@@ -119,11 +138,38 @@ function App() {
     }
   }
 
+  // 搜索函数
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    if (query.trim() === '') {
+      setSearchResults([])
+      setIsSearching(false)
+      return
+    }
+
+    setIsSearching(true)
+    // 过滤歌曲列表，匹配标题、歌手或专辑
+    const results = songs.filter(song => {
+      const searchLower = query.toLowerCase()
+      return (
+        song.title.toLowerCase().includes(searchLower) ||
+        song.artist.toLowerCase().includes(searchLower)
+      )
+    })
+    setSearchResults(results)
+    setIsSearching(false)
+  }
+
   return (
     <div className="bg-black text-white min-h-screen flex flex-col">
+      <Navbar onSearch={handleSearch} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <MainContent songs={songs} playlists={playlists} onPlaySong={playSong} />
+        <MainContent 
+          songs={isSearching ? [] : (searchQuery ? searchResults : songs)} 
+          playlists={playlists} 
+          onPlaySong={playSong} 
+        />
       </div>
       <PlayerBar 
         currentSong={currentSong} 
