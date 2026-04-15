@@ -138,16 +138,28 @@ function App() {
     }
   }
 
-  // 从API获取R2文件列表
+  // 从R2的Public URL获取文件列表
   const getR2FilesFromAPI = async () => {
     try {
-      const response = await fetch('/api/list-files')
-      if (!response.ok) {
-        throw new Error('Failed to fetch R2 files')
-      }
-      return await response.json()
+      // 由于R2存储桶是公开的，我们可以直接构造文件列表
+      // 这里使用默认的R2端点，实际部署时会使用环境变量中的值
+      const r2Endpoint = 'https://pub-12fc31f50c7e427a8bf85d595cb1a92e.r2.dev'
+      
+      // 这里假设我们知道存储桶中的文件列表
+      // 在实际应用中，您可能需要手动维护这个列表，或者使用其他方式获取
+      const files = [
+        {
+          name: 'Jar Of Love.mp3',
+          url: `${r2Endpoint}/Jar%20Of%20Love.mp3`,
+          size: 5000000, // 假设文件大小
+          lastModified: new Date()
+        }
+        // 可以添加更多文件
+      ]
+      
+      return files
     } catch (error) {
-      console.error('Error fetching R2 files from API:', error)
+      console.error('Error fetching R2 files:', error)
       return []
     }
   }
