@@ -118,6 +118,8 @@ function App() {
 
   // 播放歌曲
   const playSong = (song: Song) => {
+    console.log('Playing song:', song)
+    console.log('Audio URL:', song.url)
     setCurrentSong(song)
     if (audioRef.current) {
       audioRef.current.src = song.url

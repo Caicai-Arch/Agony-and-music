@@ -22,6 +22,9 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ currentSong, isPlaying, onToggleP
   const [volume, setVolume] = useState(70)
   const progressBarRef = useRef<HTMLDivElement>(null)
 
+  // 打印currentSong对象，查看数据结构
+  console.log('Current Song:', currentSong)
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
