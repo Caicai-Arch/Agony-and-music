@@ -1,13 +1,12 @@
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3'
 
 // Cloudflare R2配置
-// 注意：请填写实际的访问密钥和存储桶名称
 const r2Config = {
   region: 'auto',
-  endpoint: 'https://pub-12fc31f50c7e427a8bf85d595cb1a92e.r2.dev',
+  endpoint: process.env.R2_ENDPOINT || 'https://pub-12fc31f50c7e427a8bf85d595cb1a92e.r2.dev',
   credentials: {
-    accessKeyId: 'YOUR_CLOUDFLARE_R2_ACCESS_KEY_ID',
-    secretAccessKey: 'YOUR_CLOUDFLARE_R2_SECRET_ACCESS_KEY'
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || ''
   }
 }
 
@@ -17,7 +16,7 @@ const s3Client = new S3Client(r2Config)
 export const getR2Files = async () => {
   try {
     const command = new ListObjectsV2Command({
-      Bucket: 'YOUR_BUCKET_NAME' // 请填写实际的存储桶名称
+      Bucket: process.env.R2_BUCKET_NAME || 'your-bucket-name'
     })
     const response = await s3Client.send(command)
     return response.Contents || []
