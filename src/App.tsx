@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import PlayerBar from './components/PlayerBar'
 import ParticleEffect from './components/ParticleEffect'
 import Navbar from './components/Navbar'
+import LyricsDisplay from './components/LyricsDisplay'
 import Home from './pages/Home'
 import MyMusic from './pages/MyMusic'
 import Settings from './pages/Settings'
@@ -17,6 +18,7 @@ interface Song {
   cover: string
   duration: string
   url: string
+  lyrics?: string
 }
 
 interface Playlist {
@@ -33,6 +35,8 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Song[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [showLyrics, setShowLyrics] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
   const audioRef = useRef<HTMLAudioElement>(null)
 
   // 从Supabase获取歌曲数据
@@ -73,7 +77,8 @@ function App() {
             artist: 'Ed Sheeran',
             cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20shape%20of%20you%20dark%20theme&image_size=square',
             duration: '3:53',
-            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            lyrics: '[00:00.00]The club isn\'t the best place to find a lover\n[00:03.00]So the bar is where I go\n[00:06.00]Me and my friends at the table doing shots\n[00:09.00]Drinking fast and then we talk slow\n[00:12.00]Come over and start up a conversation with just me\n[00:15.00]And trust me I\'ll give it a chance now\n[00:18.00]Take my hand, stop, put Van the Man on the jukebox\n[00:21.00]And then we start to dance, and now I\'m singing like\n[00:24.00]Girl, you know I want your love\n[00:27.00]Your love was handmade for somebody like me\n[00:30.00]Come on now, follow my lead\n[00:33.00]I may be crazy, don\'t mind me\n[00:36.00]Say, boy, let\'s not talk too much\n[00:39.00]Grab on my waist and put that body on me\n[00:42.00]Come on now, follow my lead\n[00:45.00]Come, come on now, follow my lead\n[00:48.00]I\'m in love with the shape of you\n[00:51.00]We push and pull like a magnet do\n[00:54.00]Although my heart is falling too\n[00:57.00]I\'m in love with your body\n[01:00.00]And last night you were in my room\n[01:03.00]And now my bedsheets smell like you\n[01:06.00]Every day discovering something brand new\n[01:09.00]I\'m in love with your body\n[01:12.00]Oh—I—oh—I—oh—I—oh—I\n[01:15.00]I\'m in love with your body\n[01:18.00]Oh—I—oh—I—oh—I—oh—I\n[01:21.00]I\'m in love with your body\n[01:24.00]Oh—I—oh—I—oh—I—oh—I\n[01:27.00]I\'m in love with your body\n[01:30.00]Every day discovering something brand new\n[01:33.00]I\'m in love with the shape of you'
           },
           {
             id: 2,
@@ -81,7 +86,8 @@ function App() {
             artist: '曲婉婷',
             cover: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20Jar%20Of%20Love%20dark%20theme&image_size=square',
             duration: '3:00',
-            url: 'https://pub-12fc31f50c7e427a8bf85d595cb1a92e.r2.dev/Jar Of Love.mp3'
+            url: 'https://pub-12fc31f50c7e427a8bf85d595cb1a92e.r2.dev/Jar Of Love.mp3',
+            lyrics: '[00:00.00]是谁导演这场戏\n[00:05.00]在这孤单角色里\n[00:10.00]对白总是自言自语\n[00:15.00]对手都是回忆\n[00:20.00]看不出什么结局\n[00:25.00]自始至终全是你\n[00:30.00]让我投入太彻底\n[00:35.00]故事如果注定悲剧\n[00:40.00]何苦给我美丽\n[00:45.00]演出相聚和别离\n[00:50.00]没有星星的夜里\n[00:55.00]我用泪光吸引你\n[01:00.00]既然爱你不能言语\n[01:05.00]只能微笑哭泣\n[01:10.00]让我从此忘了你\n[01:15.00]没有星星的夜里\n[01:20.00]我把往事留给你\n[01:25.00]如果一切只是演戏\n[01:30.00]要你好好看戏\n[01:35.00]心碎只是我自己\n[01:40.00]没有星星的夜里\n[01:45.00]我用泪光吸引你\n[01:50.00]既然爱你不能言语\n[01:55.00]只能微笑哭泣\n[02:00.00]让我从此忘了你\n[02:05.00]没有星星的夜里\n[02:10.00]我把往事留给你\n[02:15.00]如果一切只是演戏\n[02:20.00]要你好好看戏\n[02:25.00]心碎只是我自己'
           }
         ]
         console.log('使用 fallback 数据:', fallbackSongs)
@@ -142,6 +148,27 @@ function App() {
       }
       setIsPlaying(!isPlaying)
     }
+  }
+
+  // 监听音频事件
+  useEffect(() => {
+    const audioElement = audioRef.current
+    if (!audioElement) return
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audioElement.currentTime)
+    }
+
+    audioElement.addEventListener('timeupdate', handleTimeUpdate)
+
+    return () => {
+      audioElement.removeEventListener('timeupdate', handleTimeUpdate)
+    }
+  }, [])
+
+  // 切换歌词显示
+  const toggleLyrics = () => {
+    setShowLyrics(!showLyrics)
   }
 
   // 从R2的Public URL获取文件列表
@@ -334,11 +361,33 @@ function App() {
           </div>
         </div>
         
+        {/* 歌词显示 */}
+        {showLyrics && currentSong && (
+          <div className="fixed bottom-24 left-0 right-0 bg-gray-900 border-t border-gray-800 p-4 z-30">
+            <div className="container mx-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold">歌词</h3>
+                <button 
+                  className="text-gray-400 hover:text-white"
+                  onClick={toggleLyrics}
+                >
+                  ×
+                </button>
+              </div>
+              <LyricsDisplay 
+                currentLyrics={currentSong.lyrics || ''} 
+                currentTime={currentTime} 
+              />
+            </div>
+          </div>
+        )}
+        
         {/* 底部播放器 */}
         <PlayerBar 
           currentSong={currentSong} 
           isPlaying={isPlaying} 
           onTogglePlay={togglePlay} 
+          onToggleLyrics={toggleLyrics}
           audioRef={audioRef} 
         />
         

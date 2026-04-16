@@ -13,10 +13,11 @@ interface PlayerBarProps {
   currentSong: Song | null
   isPlaying: boolean
   onTogglePlay: () => void
+  onToggleLyrics: () => void
   audioRef: React.RefObject<HTMLAudioElement>
 }
 
-const PlayerBar: React.FC<PlayerBarProps> = ({ currentSong, isPlaying, onTogglePlay, audioRef }) => {
+const PlayerBar: React.FC<PlayerBarProps> = ({ currentSong, isPlaying, onTogglePlay, onToggleLyrics, audioRef }) => {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(70)
@@ -101,7 +102,8 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ currentSong, isPlaying, onToggleP
         <img 
           src={currentSong?.cover || "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=music%20album%20cover%20dark%20theme%20red%20accent&image_size=square"} 
           alt={currentSong?.title || "当前播放"} 
-          className="w-10 h-10 md:w-12 md:h-12 object-cover mr-3 md:mr-4"
+          className="w-10 h-10 md:w-12 md:h-12 object-cover mr-3 md:mr-4 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={onToggleLyrics}
         />
         <div className="flex-1">
           <h4 className="font-medium text-sm md:text-base truncate">{currentSong?.title || "未选择歌曲"}</h4>
