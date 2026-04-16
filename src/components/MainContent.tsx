@@ -45,21 +45,21 @@ const MainContent: React.FC<MainContentProps> = ({ songs, playlists, onPlaySong 
           <h2 className="text-xl font-bold">推荐歌单</h2>
           <button className="text-red-500 text-sm hover:underline">查看更多</button>
         </div>
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {playlists.map((playlist) => (
             <div key={playlist.id} className="bg-gray-900 rounded-lg overflow-hidden hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300">
               <div className="relative">
                 <img 
                   src={playlist.cover} 
                   alt={playlist.title} 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-32 sm:h-40 md:h-48 object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
-                  <h3 className="text-xl font-bold">{playlist.title}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-3 sm:p-4">
+                  <h3 className="text-lg sm:text-xl font-bold">{playlist.title}</h3>
                 </div>
               </div>
-              <div className="p-4">
-                <p className="text-gray-400 text-sm">{playlist.description}</p>
+              <div className="p-3 sm:p-4">
+                <p className="text-gray-400 text-xs sm:text-sm">{playlist.description}</p>
               </div>
             </div>
           ))}

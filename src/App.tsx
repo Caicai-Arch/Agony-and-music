@@ -248,13 +248,59 @@ function App() {
     }
   }
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <Router>
       <div className="bg-black text-white min-h-screen flex flex-col">
-        <Navbar onSearch={handleSearch} />
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar />
-          <div className="flex-1 overflow-y-auto">
+        {/* 顶部导航栏 */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className="flex items-center">
+            {/* 移动端汉堡菜单按钮 */}
+            <button 
+              className="md:hidden mr-4 text-xl"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              ☰
+            </button>
+            <h1 className="text-xl font-bold text-red-500">音乐播放器</h1>
+          </div>
+          <Navbar onSearch={handleSearch} />
+        </div>
+        
+        {/* 主内容区 */}
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* 侧边栏 - 移动端滑出式 */}
+          <div className={`
+            fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 border-r border-gray-800
+            transform transition-transform duration-300 ease-in-out
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            md:relative md:translate-x-0 md:z-0
+          `}>
+            <div className="h-full">
+              <div className="p-4 border-b border-gray-800 flex justify-between items-center md:hidden">
+                <h2 className="font-bold">菜单</h2>
+                <button 
+                  className="text-xl"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <Sidebar />
+            </div>
+          </div>
+          
+          {/* 移动端遮罩 */}
+          {sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            ></div>
+          )}
+          
+          {/* 主要内容 */}
+          <div className="flex-1 overflow-y-auto p-4 md:p-6">
             <Routes>
               <Route 
                 path="/" 
@@ -287,12 +333,15 @@ function App() {
             </Routes>
           </div>
         </div>
+        
+        {/* 底部播放器 */}
         <PlayerBar 
           currentSong={currentSong} 
           isPlaying={isPlaying} 
           onTogglePlay={togglePlay} 
           audioRef={audioRef} 
         />
+        
         <ParticleEffect />
         <audio ref={audioRef} className="hidden" />
       </div>
