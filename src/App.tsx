@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
-import MainContent from './components/MainContent'
 import PlayerBar from './components/PlayerBar'
 import ParticleEffect from './components/ParticleEffect'
 import Navbar from './components/Navbar'
+import Home from './pages/Home'
+import MyMusic from './pages/MyMusic'
+import Settings from './pages/Settings'
+import Lyrics from './pages/Lyrics'
 import { supabase } from './lib/supabase'
 
 interface Song {
@@ -245,25 +249,54 @@ function App() {
   }
 
   return (
-    <div className="bg-black text-white min-h-screen flex flex-col">
-      <Navbar onSearch={handleSearch} />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <MainContent 
-          songs={isSearching ? [] : (searchQuery ? searchResults : songs)} 
-          playlists={playlists} 
-          onPlaySong={playSong} 
+    <Router>
+      <div className="bg-black text-white min-h-screen flex flex-col">
+        <Navbar onSearch={handleSearch} />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar />
+          <div className="flex-1 overflow-y-auto">
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <Home 
+                    songs={isSearching ? [] : (searchQuery ? searchResults : songs)} 
+                    playlists={playlists} 
+                    onPlaySong={playSong} 
+                  />
+                } 
+              />
+              <Route 
+                path="/my-music" 
+                element={
+                  <MyMusic 
+                    songs={songs} 
+                    onPlaySong={playSong} 
+                  />
+                } 
+              />
+              <Route path="/settings" element={<Settings />} />
+              <Route 
+                path="/lyrics" 
+                element={
+                  <Lyrics 
+                    currentSong={currentSong} 
+                  />
+                } 
+              />
+            </Routes>
+          </div>
+        </div>
+        <PlayerBar 
+          currentSong={currentSong} 
+          isPlaying={isPlaying} 
+          onTogglePlay={togglePlay} 
+          audioRef={audioRef} 
         />
+        <ParticleEffect />
+        <audio ref={audioRef} className="hidden" />
       </div>
-      <PlayerBar 
-        currentSong={currentSong} 
-        isPlaying={isPlaying} 
-        onTogglePlay={togglePlay} 
-        audioRef={audioRef} 
-      />
-      <ParticleEffect />
-      <audio ref={audioRef} className="hidden" />
-    </div>
+    </Router>
   )
 }
 
